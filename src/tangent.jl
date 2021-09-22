@@ -123,7 +123,7 @@ end
 Represents the product space of the given representations of the
 tangent space.
 """
-struct ProductTangent{T <: Tuple{Vararg{AbstractTangentSpace}}} <: AbstractTangentSpace
+struct ProductTangent{T <: Tuple} <: AbstractTangentSpace
     factors::T
 end
 

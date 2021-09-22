@@ -1,15 +1,14 @@
-partial(x::ExplicitTangentBundle, i) = x.tangent.partials[i]
-partial(x::TaylorBundle{1}, i) = x.tangent.coeffs[i]
-partial(x::UniformBundle, i) = x.tangent.val
-partial(x::CompositeBundle{N, B}, i) where {N, B} = Tangent{B}(map(x->partial(x, i), x.tup)...)
-partial(x::ZeroTangent, i) = ZeroTangent()
+partial(x::TangentBundle, i) = partial(getfield(x, :tangent), i)
+partial(x::ExplicitTangent, i) = getfield(getfield(x, :partials), i)
+partial(x::TaylorTangent, i) = getfield(getfield(x, :coeffs), i)
+partial(x::UniformTangent, i) = getfield(x, :val)
+partial(x::ProductTangent, i) = ProductTangent(map(x->partial(x, i), getfield(x, :factors)))
+partial(x::AbstractZero, i) = x
+partial(x::CompositeBundle{N, B}, i) where {N, B} = Tangent{B}(map(x->partial(x, i), getfield(x, :tup))...)
 primal(x::AbstractTangentBundle) = x.primal
 primal(z::ZeroTangent) = ZeroTangent()
 
-first_partial(x::ExplicitTangentBundle{1}) = getfield(getfield(getfield(x, :tangent), :partials), 1)
-first_partial(x::TaylorBundle{1}) = getfield(getfield(getfield(x, :tangent), :coeffs), 1)
-first_partial(x::UniformBundle) = getfield(getfield(x, :tangent), :val)
-first_partial(x::CompositeBundle) = map(first_partial, getfield(x, :tup))
+first_partial(x) = partial(x, 1)
 
 # TODO: Which version do we want in ChainRules?
 function my_frule(args::ATB{1}...)

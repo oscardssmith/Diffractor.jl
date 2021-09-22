@@ -211,9 +211,9 @@ z45, delta45 = frule_via_ad(DiffractorRuleConfig(), (0,1), x -> log(exp(x)), 2)
 @test delta45 ≈ 1.0
 
 # Chunked Gradients
-using Diffractor: TangentBundle, ZeroBundle, ProductTangent, ExplicitTangent, ∂⃖¹
+using Diffractor: TangentBundle, ZeroBundle, ProductTangent, ExplicitTangent, ∂☆¹
 @syms x
 tangent = TangentBundle{1}(1.0, ProductTangent((ExplicitTangent((x,)), ExplicitTangent((1.0,)))))
-∂⃖¹(ZeroBundle{1}(sin), tangent)
+∂☆¹(ZeroBundle{1}(sin), tangent)
 
 include("pinn.jl")
