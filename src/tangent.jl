@@ -89,13 +89,13 @@ represented by a vector of `2^N-1` partials.
 struct ExplicitTangent{P <: Tuple} <: AbstractTangentSpace
     partials::P
 end
+Base.:(==)(a::ExplicitTangent, b::ExplicitTangent) = a.partials == b.partials
 
 @eval struct TaylorTangent{C <: Tuple} <: AbstractTangentSpace
     coeffs::C
     TaylorTangent(coeffs) = $(Expr(:new, :(TaylorTangent{typeof(coeffs)}), :coeffs))
 end
 Base.:(==)(a::TaylorTangent, b::TaylorTangent) = a.coeffs == b.coeffs
-Base.hash(tt::TaylorTangent, h::UInt64) = hash(tt.coeffs, h)
 
 """
     struct TaylorTangent{C}
@@ -131,6 +131,7 @@ tangent space.
 struct ProductTangent{T <: Tuple} <: AbstractTangentSpace
     factors::T
 end
+Base.:(==)(a::ProductTangent, b::ProductTangent) = a.factors == b.factors
 
 """
     struct UniformTangent
@@ -162,7 +163,12 @@ TangentBundle{N}(primal::B, tangent::P) where {N, B, P<:AbstractTangentSpace} =
     _TangentBundle(Val{N}(), primal, tangent)
 
 Base.hash(tb::TangentBundle, h::UInt64) = hash(tb.primal, h)
-Base.:(==)(a::TangentBundle, b::TangentBundle) = (a.primal == b.primal) && (a.tangent == b.tangent)    
+function Base.:(==)(a::TangentBundle{N}, b::TangentBundle{N2}) where {N, N2}
+    N == N2 || return false
+    a.primal == b.primal || return false
+    typeof(a.tangent) != typeof(b.tangent) && error("Comparison between different tangent types not yet defined")
+    return a.tangent == b.tangent
+end
 
 const ExplicitTangentBundle{N, B, P} = TangentBundle{N, B, ExplicitTangent{P}}
 

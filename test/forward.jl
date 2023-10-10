@@ -1,4 +1,4 @@
-#module forward_tests
+module forward_tests
 using Diffractor
 using Diffractor: TaylorBundle, ZeroBundle, ∂☆
 using ChainRules
@@ -23,7 +23,7 @@ let var"'" = Diffractor.PrimeDerivativeFwd
     # Integration tests
     @test recursive_sin'(1.0) == cos(1.0)
     @test recursive_sin''(1.0) == -sin(1.0)
-    
+
     @test_broken recursive_sin'''(1.0) == -cos(1.0)
     @test_broken recursive_sin''''(1.0) == sin(1.0)
     @test_broken recursive_sin'''''(1.0) == cos(1.0)
@@ -53,7 +53,7 @@ end
         primal_calls[]+=1
         return x+y
     end
-    
+
     frule_calls = Ref(0)
     function ChainRulesCore.frule((_, ẋ, ẏ), ::typeof(foo), x, y)
         frule_calls[]+=1
@@ -98,7 +98,7 @@ end
     # map over all closure, wrt the closed variable
     mulby(x) = y->x*y
     🐇 = ∂☆{1}()(
-        ZeroBundle{1}(x->(map(mulby(x), [2.0, 4.0]))), 
+        ZeroBundle{1}(x->(map(mulby(x), [2.0, 4.0]))),
         TaylorBundle{1}(2.0, (10.0,))
     )
     @test 🐇 == TaylorBundle{1}([4.0, 8.0], ([20.0, 40.0],))
